@@ -141,10 +141,6 @@ func outlookFind(csvFile string, outputTxtFile string) {
 		if !ok {
 			fullSmtpList[smtpAddress] = true
 		}
-		// _, err = outputFile.WriteString(smtpAddress + "\n")
-		// if err != nil {
-		// 	log.Fatalf("Failed to write to output file: %v", err)
-		// }
 
 		// Release COM objects
 		smtpAddressResult.Clear()
@@ -153,7 +149,7 @@ func outlookFind(csvFile string, outputTxtFile string) {
 	}
 
 	// Write Struct collection to txt file
-	for key, _ := range fullSmtpList {
+	for key := range fullSmtpList {
 		_, err = outputFile.WriteString(key + "\n")
 		if err != nil {
 			log.Fatalf("Failed to write to output file: %v", err)
