@@ -1,14 +1,23 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"os"
 
 	"github.com/gocolly/colly"
 )
 
+var targetURL string
+
 func scrapper() {
+	fmt.Print("Input URL to scrape all text\n")
+	// fmt.Scan(&targetURL)
+	r := bufio.NewReader(os.Stdin)
+	targetURL, _ = r.ReadString('\n')
+
 	c := colly.NewCollector(
-		colly.AllowedDomains("https://www.scrapingcourse.com/"),
+		colly.AllowedDomains(targetURL),
 	)
 
 	// called before an HTTP request is triggered
@@ -36,4 +45,24 @@ func scrapper() {
 	c.OnScraped(func(r *colly.Response) {
 		fmt.Println(r.Request.URL, " scraped!")
 	})
+	c.Visit(targetURL)
+
+	fmt.Print("finished")
+	rx := bufio.NewReader(os.Stdin)
+	_, _ = rx.ReadString('\n')
+}
+
+func scrapper2() {
+	c := colly.NewCollector()
+
+	// Find and visit all links
+	c.OnHTML("a", func(e *colly.HTMLElement) {
+		e.Request.Visit(e.Attr("href"))
+	})
+
+	c.OnRequest(func(r *colly.Request) {
+		fmt.Println("Visiting", r.URL)
+	})
+
+	c.Visit("http://go-colly.org/")
 }

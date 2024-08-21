@@ -17,20 +17,20 @@ var menuText = `
         |  +-----------+--+
         | /            | / 
         |/             |/  
-J.M.    *--------------*   
+utilX   *--------------*   
 `
 
 func printMenu() int {
-	c1 := color.New(color.BgMagenta)
-	c2 := color.New(color.FgGreen).Add(color.Bold)
-	c3 := color.New(color.FgHiYellow).Add(color.Bold)
-	c5 := color.New(color.FgRed).Add(color.Bold)
-	c1.Println(menuText)
+	cTitle := color.New(color.BgMagenta)
+	cMenu := color.New(color.FgHiBlue).Add(color.Bold)
+	cQuit := color.New(color.FgRed).Add(color.Bold)
+	cTitle.Println(menuText)
 	fmt.Println("==========================================")
-	c3.Println("1. csv file (default: names.csv)")
-	c3.Println("2. output txt (default: emails.txt)")
-	c2.Println("3. RUN Utility")
-	c5.Println("4. QUIT")
+	cMenu.Println("1. Web Scrapper")
+	cMenu.Println("2. GAL Lookup")
+	// cMenu.Println("3. output txt (default: emails.txt)")
+	// c2.Println("4. RUN Utility")
+	cQuit.Println("3. QUIT")
 	fmt.Println("==========================================")
 
 	menuOption := 0
