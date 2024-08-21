@@ -81,6 +81,8 @@ func outlookFind(csvFile string, outputTxtFile string) {
 	}
 	defer outputFile.Close()
 
+	fullSmtpList := map[string]bool{}
+
 	// Iterate over CSV file
 	for _, record := range records {
 		nameX := strings.TrimSpace(record[0])
@@ -134,12 +136,15 @@ func outlookFind(csvFile string, outputTxtFile string) {
 
 		fmt.Printf("Found email: %s\n", smtpAddress)
 
-		//TO DO*********************************************
-		// Add to our Struct SET to exclude DUPS
-		_, err = outputFile.WriteString(smtpAddress + "\n")
-		if err != nil {
-			log.Fatalf("Failed to write to output file: %v", err)
+		// Add to Hash table. unique entries
+		_, ok := fullSmtpList[smtpAddress]
+		if !ok {
+			fullSmtpList[smtpAddress] = true
 		}
+		// _, err = outputFile.WriteString(smtpAddress + "\n")
+		// if err != nil {
+		// 	log.Fatalf("Failed to write to output file: %v", err)
+		// }
 
 		// Release COM objects
 		smtpAddressResult.Clear()
@@ -147,11 +152,12 @@ func outlookFind(csvFile string, outputTxtFile string) {
 		entry.Release()
 	}
 
-	//TO DO*********************************************
 	// Write Struct collection to txt file
-	_, err = outputFile.WriteString(smtpAddress + "\n")
-	if err != nil {
-		log.Fatalf("Failed to write to output file: %v", err)
+	for key, _ := range fullSmtpList {
+		_, err = outputFile.WriteString(key + "\n")
+		if err != nil {
+			log.Fatalf("Failed to write to output file: %v", err)
+		}
 	}
 
 	fmt.Print("Successfully processed all records...Press Enter to continue.")
