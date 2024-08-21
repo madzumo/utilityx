@@ -14,7 +14,10 @@ import (
 
 func outlookFind(csvFile string, outputTxtFile string) {
 	// Initialize COM
-	ole.CoInitialize(0)
+	err := ole.CoInitialize(0)
+	if err != nil {
+		log.Fatalf("Failed to initialize COM library: %v", err)
+	}
 	defer ole.CoUninitialize()
 
 	// Connect to Outlook
@@ -52,69 +55,107 @@ func outlookFind(csvFile string, outputTxtFile string) {
 	// Load CSV file with names
 	file, err := os.Open(csvFile)
 	if err != nil {
-		// log.Fatalf("Failed to open CSV file: %v", err)
 		fmt.Print("Failed to open CSV file:...Press Enter to continue.")
 		reader := bufio.NewReader(os.Stdin)
 		_, _ = reader.ReadString('\n')
+		return // Exit function if file cannot be opened
 	}
 	defer file.Close()
 
 	reader := csv.NewReader(file)
 	records, err := reader.ReadAll()
 	if err != nil {
-		// log.Fatalf("Failed to read CSV file: %v", err)
 		fmt.Print("Failed to read CSV file:...Press Enter to continue.")
 		reader := bufio.NewReader(os.Stdin)
 		_, _ = reader.ReadString('\n')
+		return // Exit function if file cannot be read
 	}
 
 	// Create/Truncate the output file
 	outputFile, err := os.Create(outputTxtFile)
 	if err != nil {
-		// log.Fatalf("Failed to create output file: %v", err)
 		fmt.Print("Failed to create output file:...Press Enter to continue.")
 		reader := bufio.NewReader(os.Stdin)
 		_, _ = reader.ReadString('\n')
+		return // Exit function if output file cannot be created
 	}
 	defer outputFile.Close()
 
-	// Iterate over CSV records
+	// Iterate over CSV file
 	for _, record := range records {
-		name := strings.TrimSpace(record[0])
-		fmt.Printf("Searching for %s...\n", name)
+		nameX := strings.TrimSpace(record[0])
+		fmt.Printf("Searching for %s...\n", nameX)
 
-		// Find the user in the Global Address List
-		entry, err := oleutil.CallMethod(addressEntries, "Item", name)
+		// Search GAL
+		entryResult, err := oleutil.CallMethod(addressEntries, "Item", nameX)
 		if err != nil {
-			fmt.Printf("Could not find %s in Global Address List, skipping...\n", name)
-			continue
-		}
-		defer entry.ToIDispatch().Release()
-
-		// Get the user's SMTP address
-		userEmail, err := oleutil.GetProperty(entry.ToIDispatch(), "GetExchangeUser")
-		if err != nil {
-			fmt.Printf("Could not get Exchange User for %s, skipping...\n", name)
-			continue
-		}
-		defer userEmail.ToIDispatch().Release()
-
-		smtpAddress, err := oleutil.GetProperty(userEmail.ToIDispatch(), "PrimarySmtpAddress")
-		if err != nil {
-			fmt.Printf("Could not get SMTP address for %s, skipping...\n", name)
+			fmt.Printf("Not in GAL, skipping %s...\n", nameX)
 			continue
 		}
 
-		email := smtpAddress.ToString()
-		fmt.Printf("Found email: %s\n", email)
+		entry := entryResult.ToIDispatch()
+		if entry == nil {
+			fmt.Printf("Entry found for %s is nil, skipping...\n", nameX)
+			continue
+		}
 
-		// Write the found email address to the output file
-		_, err = outputFile.WriteString(email + ";\n")
+		// Get the Exchange User
+		userEmailResult, err := oleutil.GetProperty(entry, "GetExchangeUser")
+		if err != nil {
+			fmt.Printf("Could not get Exchange User for %s, skipping...\n", nameX)
+			entry.Release()
+			continue
+		}
+
+		userEmail := userEmailResult.ToIDispatch()
+		if userEmail == nil {
+			fmt.Printf("Exchange User for %s is nil, skipping...\n", nameX)
+			entry.Release()
+			continue
+		}
+
+		// Get the Primary SMTP Address
+		smtpAddressResult, err := oleutil.GetProperty(userEmail, "PrimarySmtpAddress")
+		if err != nil {
+			fmt.Printf("Could not get SMTP address for %s, skipping...\n", nameX)
+			userEmail.Release()
+			entry.Release()
+			continue
+		}
+
+		smtpAddress := smtpAddressResult.ToString()
+		if smtpAddress == "" {
+			fmt.Printf("SMTP address for %s is empty, skipping...\n", nameX)
+			smtpAddressResult.Clear()
+			userEmail.Release()
+			entry.Release()
+			continue
+		}
+
+		fmt.Printf("Found email: %s\n", smtpAddress)
+
+		//TO DO*********************************************
+		// Add to our Struct SET to exclude DUPS
+		_, err = outputFile.WriteString(smtpAddress + "\n")
 		if err != nil {
 			log.Fatalf("Failed to write to output file: %v", err)
 		}
-		fmt.Print("Successfully processed all records...Press Enter to continue.")
-		r := bufio.NewReader(os.Stdin)
-		_, _ = r.ReadString('\n')
+
+		// Release COM objects
+		smtpAddressResult.Clear()
+		userEmail.Release()
+		entry.Release()
 	}
+
+	//TO DO*********************************************
+	// Write Struct collection to txt file
+	_, err = outputFile.WriteString(smtpAddress + "\n")
+	if err != nil {
+		log.Fatalf("Failed to write to output file: %v", err)
+	}
+
+	fmt.Print("Successfully processed all records...Press Enter to continue.")
+	os.Stdout.Sync()
+	r := bufio.NewReader(os.Stdin)
+	_, _ = r.ReadString('\n')
 }

@@ -9,7 +9,8 @@ import (
 var csvFile string = "names.csv"
 var outputTxt string = "emails.txt"
 var color1 = color.New(color.BgBlue).Add(color.Bold)
-var colorPrompt = color.New(color.BgHiMagenta)
+
+// var colorPrompt = color.New(color.BgHiMagenta)
 
 func main() {
 	for {
@@ -23,7 +24,7 @@ func main() {
 			color1.Printf("OutputTXt: %s\n", outputTxt)
 			fmt.Println("==========================================")
 			outlookFind(csvFile, outputTxt)
-			clearScreen()
+			// clearScreen()
 		case 3:
 			return
 		}

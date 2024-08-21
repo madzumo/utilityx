@@ -22,7 +22,7 @@ utilX   *--------------*
 
 func printMenu() int {
 	cTitle := color.New(color.BgMagenta)
-	cMenu := color.New(color.FgHiBlue).Add(color.Bold)
+	cMenu := color.New(color.FgHiYellow).Add(color.Bold)
 	cQuit := color.New(color.FgRed).Add(color.Bold)
 	cTitle.Println(menuText)
 	fmt.Println("==========================================")
