@@ -136,7 +136,7 @@ func outlookFind(csvFile string, outputTxtFile string) {
 
 		fmt.Printf("Found email: %s\n", smtpAddress)
 
-		// Add to Hash table. unique entries
+		// Add to Hash map. unique entries
 		_, ok := fullSmtpList[smtpAddress]
 		if !ok {
 			fullSmtpList[smtpAddress] = true
@@ -156,8 +156,16 @@ func outlookFind(csvFile string, outputTxtFile string) {
 		}
 	}
 
-	fmt.Print("Successfully processed all records...Press Enter to continue.")
-	os.Stdout.Sync()
+	// os.Stdout.Sync()
+	// clearInputBuffer()
+	// rox := bufio.NewReader(os.Stdin)
+
 	r := bufio.NewReader(os.Stdin)
+	fmt.Print("Successfully processed all records...")
 	_, _ = r.ReadString('\n')
+
+	// _, err = rox.ReadString('\n')
+	// if err != nil {
+	// 	fmt.Println("Error reading input:", err)
+	// }
 }
