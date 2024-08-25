@@ -17,8 +17,7 @@ func main() {
 	for {
 		switch printMenu() {
 		case 1:
-			scrapper()
-			return
+			fmt.Println("Coming Soon")
 		case 2:
 			clearScreen()
 			fmt.Println("==========================================")

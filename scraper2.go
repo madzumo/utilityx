@@ -6,11 +6,10 @@ import (
 	"os"
 
 	"github.com/gocolly/colly"
+	// "github.com/playwright-community/playwright-go"
 )
 
-var targetURL string
-
-func scrapper() {
+func scrapperColly(targetURL string) {
 	fmt.Print("Input URL to scrape all text\n")
 	// fmt.Scan(&targetURL)
 	r := bufio.NewReader(os.Stdin)
