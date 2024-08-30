@@ -18,6 +18,8 @@ func main() {
 		switch printMenu() {
 		case 1:
 			fmt.Println("Coming Soon")
+			// RedmineTicket()
+			//pause
 		case 2:
 			clearScreen()
 			fmt.Println("==========================================")

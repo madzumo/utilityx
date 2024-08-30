@@ -6,6 +6,12 @@ import (
 	"github.com/fatih/color"
 )
 
+var menuOptions = map[int]string{
+	1: "Web Scrapper",
+	2: "GAL Lookup -> EMail export",
+	3: "Quit",
+}
+
 var menuText = `
            +--------------+
           /|             /|
@@ -23,14 +29,12 @@ utility |/             |/
 func printMenu() int {
 	cTitle := color.New(color.BgMagenta)
 	cMenu := color.New(color.FgBlue).Add(color.Bold)
-	cQuit := color.New(color.FgRed).Add(color.Bold)
+	// cQuit := color.New(color.FgRed).Add(color.Bold)
 	cTitle.Println(menuText)
 	fmt.Println("==========================================")
-	cMenu.Println("1. Web Scrapper")
-	cMenu.Println("2. GAL Lookup -> EMail export")
-	// cMenu.Println("3. output txt (default: emails.txt)")
-	// c2.Println("4. RUN Utility")
-	cQuit.Println("3. QUIT")
+	for i, option := range menuOptions {
+		cMenu.Printf("%d. %s\n", i, option)
+	}
 	fmt.Println("==========================================")
 
 	menuOption := 0
